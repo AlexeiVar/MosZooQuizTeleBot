@@ -1,16 +1,20 @@
-from config import TOKEN
+import os
+
+
 # Важное примечание: конфиг не имеет настоящих данных кроме токена и контактного email, их нужно заменить подходящими
 import extensions
 import telebot
 from telebot import types  # для указания типов
-# ссылка на бота: https://t.me/MosZooAnimalQuizBot
 
-bot = telebot.TeleBot(TOKEN)
+from dotenv import load_dotenv
+# ссылка на бота: https://t.me/MosZooAnimalQuizBot
+load_dotenv()
+bot = telebot.TeleBot(os.getenv('TOKEN'))
 quiz = extensions.Quiz()
 try:
     mail = extensions.MailSender()
-except UnicodeEncodeError:
-    print("Данные для почты не внесены в config.py,"
+except TypeError:
+    print("Данные для почты не внесены в .env,"
           " все функции с почтой (связь с сотрудником/обратная связь) не работают")
 
 
@@ -113,7 +117,7 @@ def reach_out_mail(message: telebot.types.Message):
                  key=extensions.user_list[message.chat.id].animal_list)
     mail.send(result, message.chat.first_name, message.chat.last_name)
     bot.send_message(message.chat.id, "Ваш результат вместе с вашим именем и фамилией был отправлен на почту "
-                                      "сотрудника, пожалуйста напишите на почту example@mail.ru используя ваше "
+                                      f"сотрудника, пожалуйста напишите на почту {os.getenv('CONTACT_EMAIL')} используя ваше "
                                       "имя со всеми вашими вопросами")
 
 

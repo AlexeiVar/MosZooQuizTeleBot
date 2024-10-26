@@ -1,8 +1,11 @@
-from resources.questions import questions, answers  # Просто беру все вопросы и ответы
 import smtplib  # Библиотека, чтобы посылать письма
-from config import EMAIL, EMAIL_PASSWORD, CONTACT_EMAIL  # Все связанное с почтой
 from email.message import EmailMessage  # Чтобы посылать письма с изображениями и в целом их посылать лучше так
+import os
+from dotenv import load_dotenv
 
+from resources.questions import questions, answers  # Просто беру все вопросы и ответы
+
+load_dotenv()
 # "Словарь" для хранения пользователей
 user_list = {}
 
@@ -51,13 +54,13 @@ class Quiz:
 class MailSender:
     def __init__(self):
         self.smtpObj = smtplib.SMTP_SSL('smtp.mail.ru', 465)
-        self.smtpObj.login(EMAIL, EMAIL_PASSWORD)
+        self.smtpObj.login(os.getenv('EMAIL'), os.getenv('EMAIL_PASSWORD'))
 
     def send(self, result, first_name, last_name):
         msg = EmailMessage()
         msg['Subject'] = "Вопрос о программе опеки"
-        msg['From'] = EMAIL
-        msg['To'] = CONTACT_EMAIL
+        msg['From'] = os.getenv('EMAIL')
+        msg['To'] = os.getenv('CONTACT_EMAIL')
         msg.set_content(f"{first_name} {last_name} получил результат {result} и теперь интересуется в программе опеки "
                         f"и имеет несколько вопросов о программе, вскоре от него должно поступить письмо.")
         with open(f'resources/{result}.jpg', 'rb') as photo:
@@ -69,8 +72,8 @@ class MailSender:
     def send_feedback(self, first_name, last_name, feedback):
         msg = EmailMessage()
         msg['subject'] = "Обратная связь о работе бота"
-        msg['From'] = EMAIL
-        msg['To'] = CONTACT_EMAIL
+        msg['From'] = os.getenv('EMAIL')
+        msg['To'] = os.getenv('CONTACT_EMAIL')
         msg.set_content(f"{first_name} {last_name} посылает обратную связь о работе бота:\n{feedback}")
         self.smtpObj.send_message(msg)
         msg.set_content(" ")
