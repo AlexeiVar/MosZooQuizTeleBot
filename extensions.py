@@ -2,17 +2,17 @@ import smtplib  # Библиотека, чтобы посылать письма
 from email.message import EmailMessage  # Чтобы посылать письма с изображениями и в целом их посылать лучше так
 import os
 from dotenv import load_dotenv
-
-from resources.questions import questions, answers  # Просто беру все вопросы и ответы
+import json
 
 load_dotenv()
 # "Словарь" для хранения пользователей
 user_list = {}
 
-
 # Список животных не был задан в условии задания, выбрал на свое усмотрение животных, немного поправив под вопросы
 # все животные выбраны с https://moscowzoo.ru/about/guardianship/waiting-guardianship поскольку викторина должна быть
 # связана с системой опеки
+with open("resources/questions.json", encoding='UTF8') as file:
+    questions = json.load(file)
 
 
 class APIException(Exception):  # Просто класс ошибки
@@ -35,10 +35,10 @@ class User:
         self.counter += 1
 
     # Метод для начисления очков животным
-    def give_points(self, ans, list_ans):
-        for i in range(len(ans[list_ans])):
-            # Даю им очко если ответ подходит к животному
-            self.animal_list[ans[list_ans][i]] += 1
+    def give_points(self, list_ans):
+        for i in range(len(list_ans)):
+            i = str(i + 1)
+            self.animal_list[list_ans[i]] += 1
 
 
 # Класс для викторины
@@ -46,9 +46,10 @@ class Quiz:
     # Получаю вопрос и ответ
     @staticmethod
     def get_question(i):
-        text = questions[i]
-        answer = answers[i]
-        return text, answer
+        i = str(i + 1)
+        text = questions[i]['question']
+        answers = questions[i]['answers']
+        return text, answers
 
 
 class MailSender:

@@ -1,13 +1,12 @@
+# Важное примечание: бот требует .env с почтой и токеном
 import os
-
-
-# Важное примечание: конфиг не имеет настоящих данных кроме токена и контактного email, их нужно заменить подходящими
-import extensions
 import telebot
 from telebot import types  # для указания типов
-
+import json
 from dotenv import load_dotenv
-# ссылка на бота: https://t.me/MosZooAnimalQuizBot
+
+import extensions
+
 load_dotenv()
 bot = telebot.TeleBot(os.getenv('TOKEN'))
 quiz = extensions.Quiz()
@@ -16,6 +15,8 @@ try:
 except TypeError:
     print("Данные для почты не внесены в .env,"
           " все функции с почтой (связь с сотрудником/обратная связь) не работают")
+
+TOTAL_QUESTIONS = 10  # Всего вопросов
 
 
 # Стартует всю викторину
@@ -30,17 +31,16 @@ def start(message: telebot.types.Message):
 
 # Сама викторина, поскольку функция трогает только сам телеграм её нельзя вынести в extensions
 def ask(message: telebot.types.Message):
-    if extensions.user_list[message.chat.id].counter >= len(extensions.questions):
+    if extensions.user_list[message.chat.id].counter >= TOTAL_QUESTIONS:
         end(message)
         return
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=2)
     que, ans = quiz.get_question(extensions.user_list[message.chat.id].counter)
-    list_ans = list(ans)
     # У каждого вопроса по 4 ответа поэтому делаем 4 кнопки
-    btn1 = types.KeyboardButton(list_ans[0])
-    btn2 = types.KeyboardButton(list_ans[1])
-    btn3 = types.KeyboardButton(list_ans[2])
-    btn4 = types.KeyboardButton(list_ans[3])
+    btn1 = types.KeyboardButton(ans['1']['text'])
+    btn2 = types.KeyboardButton(ans['2']['text'])
+    btn3 = types.KeyboardButton(ans['3']['text'])
+    btn4 = types.KeyboardButton(ans['4']['text'])
     markup.add(btn1, btn2, btn3, btn4)
     bot.send_message(message.chat.id, f"Вопрос номер {extensions.user_list[message.chat.id].counter + 1}:")
     bot.send_message(message.chat.id, que.format(message.from_user), reply_markup=markup)
@@ -125,23 +125,22 @@ def reach_out_mail(message: telebot.types.Message):
 @bot.message_handler(content_types=['text'])
 def func(message: telebot.types.Message):
     ignore, ans = quiz.get_question(extensions.user_list[message.chat.id].counter)
-    list_ans = list(ans)
     # Проверяем какой из 4 ответов был выбран, функция начислит очки животным которым подходит ответ Поскольку эта
     # функция работает каждый раз при сообщении нам надо повторить код с counter и ask в каждом elif а не отдельно
-    if message.text == list_ans[0]:
-        extensions.user_list[message.chat.id].give_points(ans, list_ans[0])
+    if message.text == ans['1']['text']:
+        extensions.user_list[message.chat.id].give_points(ans['1']['values'])
         extensions.user_list[message.chat.id].add_counter()
         ask(message)
-    elif message.text == list_ans[1]:
-        extensions.user_list[message.chat.id].give_points(ans, list_ans[1])
+    elif message.text == ans['2']['text']:
+        extensions.user_list[message.chat.id].give_points(ans['2']['values'])
         extensions.user_list[message.chat.id].add_counter()
         ask(message)
-    elif message.text == list_ans[2]:
-        extensions.user_list[message.chat.id].give_points(ans, list_ans[2])
+    elif message.text == ans['3']['text']:
+        extensions.user_list[message.chat.id].give_points(ans['3']['values'])
         extensions.user_list[message.chat.id].add_counter()
         ask(message)
-    elif message.text == list_ans[3]:
-        extensions.user_list[message.chat.id].give_points(ans, list_ans[3])
+    elif message.text == ans['4']['text']:
+        extensions.user_list[message.chat.id].give_points(ans['4']['values'])
         extensions.user_list[message.chat.id].add_counter()
         ask(message)
 
