@@ -28,8 +28,7 @@ class User:
         self.counter = 0  # Счетчик на каком вопросе
         # "Словарь" животных, цифра это то сколько балов набрано для него, ответом потом будет тот у кого баллов выше
         # так как это словарь то значения будут одинаковые во всех файлах
-        self.animal_list = {"сиамский крокодил": 0, "снежный барс": 0, "альпака": 0, "медоед": 0, "морж": 0,
-                            "ушастая сова": 0, "лучистая черепаха": 0}
+        self.points_list = questions['points_list']
 
     def add_counter(self):
         self.counter += 1
@@ -38,7 +37,7 @@ class User:
     def give_points(self, list_ans):
         for i in range(len(list_ans)):
             i = str(i + 1)
-            self.animal_list[list_ans[i]] += 1
+            self.points_list[list_ans[i]] += 1
 
 
 # Класс для викторины

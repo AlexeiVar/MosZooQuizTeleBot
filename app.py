@@ -55,8 +55,8 @@ def end(message: telebot.types.Message):
                                                  callback_data="feedback")
     button_share = types.InlineKeyboardButton(text="Поделиться результатом", callback_data="share")
     markup_inline.add(button_info, button_repeat, button_feedback, button_share)
-    result = max(extensions.user_list[message.chat.id].animal_list,
-                 key=extensions.user_list[message.chat.id].animal_list.get)
+    result = max(extensions.user_list[message.chat.id].points_list,
+                 key=extensions.user_list[message.chat.id].points_list.get)
     text = f"Поздравляю {message.chat.first_name}! Вы {result}!"
     # Открываю фото животного используя результат,
     # собственно фотографии называются так же как и животные и имеют .jpg формат
@@ -69,8 +69,8 @@ def end(message: telebot.types.Message):
 def end_buttons(call):
     if call.data == 'repeat':  # Если выбрано повторить викторину
         extensions.user_list[call.message.chat.id].counter = 0
-        for value in extensions.user_list[call.message.chat.id].animal_list:
-            extensions.user_list[call.message.chat.id].animal_list[value] = 0
+        for value in extensions.user_list[call.message.chat.id].points_list:
+            extensions.user_list[call.message.chat.id].points_list[value] = 0
         ask(call.message)
     elif call.data == "adoption":  # Если выбрано узнать больше информации о программы опеки
         markup_inline = types.InlineKeyboardMarkup(row_width=1)
@@ -96,8 +96,8 @@ def end_buttons(call):
         bot.register_next_step_handler(msg, feedback_sender)
     elif call.data == "share":  # Если выбрано поделиться результатом, к сожалению копирует без изображения
         bot.send_message(call.message.chat.id, "Нажмите на сообщение чтобы его скопировать")
-        result = max(extensions.user_list[call.message.chat.id].animal_list,
-                     key=extensions.user_list[call.message.chat.id].animal_list.get)
+        result = max(extensions.user_list[call.message.chat.id].points_list,
+                     key=extensions.user_list[call.message.chat.id].points_list.get)
         text = (f"`Мое тотемное животное это {result}!"
                 f" Узнай свое тотемное животное при помощи бота https://t.me/MosZooAnimalQuizBot`")
         bot.send_message(call.message.chat.id, text, parse_mode="MARKDOWNV2")
@@ -113,8 +113,8 @@ def feedback_sender(message: telebot.types.Message):
 
 # Функция для связи с сотрудником зоопарка
 def reach_out_mail(message: telebot.types.Message):
-    result = max(extensions.user_list[message.chat.id].animal_list,
-                 key=extensions.user_list[message.chat.id].animal_list)
+    result = max(extensions.user_list[message.chat.id].points_list,
+                 key=extensions.user_list[message.chat.id].points_list)
     mail.send(result, message.chat.first_name, message.chat.last_name)
     bot.send_message(message.chat.id, "Ваш результат вместе с вашим именем и фамилией был отправлен на почту "
                                       f"сотрудника, пожалуйста напишите на почту {os.getenv('CONTACT_EMAIL')} используя ваше "
